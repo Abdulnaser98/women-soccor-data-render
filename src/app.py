@@ -30,10 +30,10 @@ color_legend_world_cup_men = {
     '1nd Round': 'yellow'
 }
 
-df = pd.read_csv('/Users/abdulnaser/Desktop/test_render/DeployWithRender/src/results.csv')  # Replace 'results.csv' with the actual file path or DataFrame name
-UEFA_women_transformed_data = pd.read_csv('/Users/abdulnaser/Desktop/test_render/DeployWithRender/src/UEFA_women_transformed_data.csv')
-women_world_cup_transformed_data = pd.read_csv('/Users/abdulnaser/Desktop/test_render/DeployWithRender/src/world_cup_transformed_data.csv')
-men_world_cup_transformed_data = pd.read_csv('/Users/abdulnaser/Desktop/test_render/DeployWithRender/src/men_world_cup_transformed_data.csv')
+df = pd.read_csv('results.csv')  # Replace 'results.csv' with the actual file path or DataFrame name
+UEFA_women_transformed_data = pd.read_csv('UEFA_women_transformed_data.csv')
+women_world_cup_transformed_data = pd.read_csv('world_cup_transformed_data.csv')
+men_world_cup_transformed_data = pd.read_csv('men_world_cup_transformed_data.csv')
 
 
 
