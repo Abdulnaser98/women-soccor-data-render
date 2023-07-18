@@ -30,10 +30,10 @@ color_legend_world_cup_men = {
     '1nd Round': 'yellow'
 }
 
-df = pd.read_csv('results.csv')  # Replace 'results.csv' with the actual file path or DataFrame name
-UEFA_women_transformed_data = pd.read_csv('UEFA_women_transformed_data.csv')
-world_cup_transformed_data = pd.read_csv('world_cup_transformed_data.csv')
-men_world_cup_transformed_data = pd.read_csv('men_world_cup_transformed_data.csv')
+df = pd.read_csv('/Users/abdulnaser/Desktop/test_render/DeployWithRender/src/results.csv')  # Replace 'results.csv' with the actual file path or DataFrame name
+UEFA_women_transformed_data = pd.read_csv('/Users/abdulnaser/Desktop/test_render/DeployWithRender/src/UEFA_women_transformed_data.csv')
+women_world_cup_transformed_data = pd.read_csv('/Users/abdulnaser/Desktop/test_render/DeployWithRender/src/world_cup_transformed_data.csv')
+men_world_cup_transformed_data = pd.read_csv('/Users/abdulnaser/Desktop/test_render/DeployWithRender/src/men_world_cup_transformed_data.csv')
 
 
 
@@ -47,6 +47,7 @@ teams.sort(key=lambda x: (x != 'FIFA World Cup', x != 'UEFA Euro'))
 app = dash.Dash(__name__)
 server = app.server
 
+
 app.layout = html.Div(
     children=[
         dcc.Dropdown(
@@ -55,69 +56,106 @@ app.layout = html.Div(
             value=None,
             placeholder='Select a tournament'
         ),
-        dcc.Graph(id='map-first'),
-        dcc.Graph(id='map-second')
+        html.Div(
+            className='row',
+            children=[
 
+                        dcc.Graph(id='women_soccor_map',style={'display': 'inline-block'}),
+                        dcc.Graph(id='men_soccor_map', style={'display': 'inline-block'}),
+                    ]
+        ),
+        html.Div(
+            className='row',
+            children=[
+
+                        dcc.Graph(id='women_hosting_countries',style={'display': 'inline-block'}),
+                        dcc.Graph(id='men_hosting_countries', style={'display': 'inline-block'}),
+                    ]
+        ),
     ]
-)
 
+)
 
 
 @app.callback(
-    dash.dependencies.Output('map-first', 'figure'),
+    dash.dependencies.Output('women_soccor_map', 'figure'),
     [dash.dependencies.Input('tournament-dropdown', 'value')]
 )
-def update_map_first(selected_tournament):
-
-    print('selected_tournament')
-    print(selected_tournament)
+def update_women_soccor_map(selected_tournament):
     if selected_tournament == 'FIFA World Cup':
-        print("hellllllllllllo")
-        print(world_cup_transformed_data.columns)
-
-        fig2 = px.choropleth(world_cup_transformed_data, locations="Team", locationmode='country names',
-                                color=world_cup_transformed_data['score'], hover_name="Team",
+        fig = px.choropleth(women_world_cup_transformed_data, locations="Team", locationmode='country names',
+                                color=women_world_cup_transformed_data['score'], hover_name="Team",
                                 title='Color and Score', hover_data=['score'],
                                 color_discrete_map=color_legend_world_cup)
 
-        fig2.update_layout(title='Countries Best results(Women)'.format(selected_tournament))
+        fig.update_layout(title='Countries Best results(Women)'.format(selected_tournament))
 
-        return fig2
+        return fig
 
-    else:
+    elif selected_tournament == 'UEFA Euro':
         fig = px.choropleth(UEFA_women_transformed_data, locations="Team", locationmode='country names',
                             color=UEFA_women_transformed_data['score'], hover_name="Team",
                             title='Color and Score', hover_data=['score'],
                             color_discrete_map=color_legend_UEFA)
 
-        fig.update_layout(title='Countries Best results'.format(selected_tournament))
+        fig.update_layout(title='Countries Best results(Women)'.format(selected_tournament))
+        return fig
+
+    else:
+        fig = px.choropleth(UEFA_women_transformed_data, locations="Team",title='Color and Score')
+        fig.update_layout(title='Countries Best results(Women): There is no data yet :('.format(selected_tournament))
+        return fig
+
+
+@app.callback(
+    dash.dependencies.Output('men_soccor_map', 'figure'),
+    [dash.dependencies.Input('tournament-dropdown', 'value')]
+)
+def update_men_soccor_map(selected_tournament):
+
+    if selected_tournament == 'FIFA World Cup':
+        fig9 = px.choropleth(men_world_cup_transformed_data, locations="Team", locationmode='country names',
+                    color=men_world_cup_transformed_data['score'], hover_name="Team",
+                    title='Countries Best result(Men)', hover_data=['score'],
+                    color_discrete_map=color_legend_world_cup_men)
+
+        return fig9
+
+    else:
+        fig = px.choropleth(men_world_cup_transformed_data, locations="Team",
+                             hover_name="Team",title='Color and Score')
+        fig.update_layout(title='Countries Best result(Men): There is no data yet :('.format(selected_tournament))
         return fig
 
 
 
 
 @app.callback(
-    dash.dependencies.Output('map-second', 'figure'),
+    dash.dependencies.Output('women_hosting_countries', 'figure'),
     [dash.dependencies.Input('tournament-dropdown', 'value')]
 )
-def update_map_second(selected_tournament):
-        print('selected_tournament')
-        print(selected_tournament)
+def update_women_hosting_countries(selected_tournament):
+
         tournament_data = df[df['tournament'] == selected_tournament]
-
-        filtered_data = pd.DataFrame(columns=['Country', 'total_times'])
-
         d = tournament_data.groupby(['tournament', 'country', 'year']).size().reset_index()[['tournament', 'country', 'year']]
         d = d.groupby(['tournament', 'country']).size().reset_index()
         d.rename(columns={0: 'count'}, inplace=True)
+        fig = px.choropleth(d, locations="country", locationmode='country names',
+                                    hover_name="country", color="count",
+                                    color_continuous_scale='RdBu')
+        fig.update_layout(title='Hosting Countries(Women)'.format(selected_tournament))
+        return fig
 
-        fig_map = px.choropleth(d, locations="country", locationmode='country names',
-                                hover_name="country", color="count",
-                                color_continuous_scale='RdBu')
 
-        fig_map.update_layout(title='Hosting Countries(Women)'.format(selected_tournament))
-        return fig_map
-
+@app.callback(
+    dash.dependencies.Output('men_hosting_countries', 'figure'),
+    [dash.dependencies.Input('tournament-dropdown', 'value')]
+)
+def update_men_hosting_countries(selected_tournament):
+    fig = px.choropleth(men_world_cup_transformed_data, locations="Team",
+                             hover_name="Team",title='Color and Score')
+    fig.update_layout(title='Hosting Countries(Men): There is no data yet :('.format(selected_tournament))
+    return fig
 
 
 if __name__ == '__main__':
